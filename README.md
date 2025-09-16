@@ -9,6 +9,8 @@
 ```sh
 cp test/post.md.example ${dir}/xxx.md
 
+vim ${dir}/xxx.md
+
 go run cmd/publish.go ${dir}/xxx.md
 ```
 
