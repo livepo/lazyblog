@@ -1,0 +1,344 @@
+:root {
+  --primary-color: #2d6a4f; /* 深绿色，博客主色 */
+  --secondary-color: #40916c; /* 浅绿色，博客次色 */
+  --text-color: #343a40; /* 深灰色，正文色 */
+  --background-color: #fdf6e3; /* 米黄色，博客背景色 */
+  --left-bg-color: #ffe5b4; /* 浅橙色，侧栏背景色 */
+  --border-color: #b7b7a4; /* 浅棕色，边框色 */
+  --verbose-color: #6c757d; /* 中灰色，次要文字色 */
+  --heading-font: "黑体, 'Heiti SC', 'SimHei', sans-serif",
+  --body-font: "宋体, 'SimSun', 'Songti SC', serif"
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--primary-color);
+  font-family: var(--heading-font), serif;
+}
+
+p {
+  color: var(--text-color);
+  font-family: var(--body-font), serif;
+}
+
+.main {
+  display: flex;
+  min-height: 100vh;
+}
+
+.left {
+  min-width: 400px;
+  align-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  background-image: url('left-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.right {
+  flex: 1;
+  background-color: var(--background-color);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  margin-left: 400px; /* 避免被left遮挡 */
+}
+
+.right-card {
+  background-color: #fff;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.right-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.right-card.height-viewport {
+  height: 95%;
+}
+
+.site-name {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 20px auto;
+  background-color: #ccc; /* 占位符颜色 */
+  text-align: center;
+  align-content: center;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .left {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+  .right {
+    margin-left: 0;
+  }
+
+  .nav {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .social-links {
+    margin-bottom: 8px;
+  }
+}
+.right-card.height-viewport {
+  min-height: 90vh;
+}
+
+.nav a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.nav a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+.social-links a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.socail-links a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.article-container {
+  color: var(--text-color);
+  padding: 20px;
+  height: 100vh;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .article-container {
+    width: 80%;
+    margin: 10px auto;
+  }
+}
+
+.comment {
+  margin-top: 20px;
+}
+
+.comment-input {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-family: var(--body-font), serif;
+  color: var(--text-color);
+  padding-right: 120px; /* 为按钮留出空间 */
+  box-sizing: border-box;
+}
+
+.comment-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 8px 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.comment-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.form {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 0;
+}
+
+.form-group input {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-family: var(--body-font), serif;
+  color: var(--text-color);
+}
+
+.comment-area {
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .form {
+    flex-direction: column;
+  }
+  .form-group {
+    width: 100%;
+  }
+}
+
+article h2 a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+article h2 a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.post-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  list-style: none;
+  padding: 0;
+}
+
+.post-meta li a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+.post-meta li a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.nickname {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+
+.nickname:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.meta-verbose {
+  color: var(--verbose-color);
+  font-size: 0.9em;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.current-page {
+  font-weight: bold;
+  color: var(--verbose-color);
+  margin: auto 0;
+}
+
+.clickable-page {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bold;
+  padding: 5px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  margin: auto 0;
+}
+
+.clickable-page:hover {
+  color: var(--secondary-color);
+  background-color: var(--background-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.more-post {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.more-post:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.scrollup {
+  position: fixed;
+  display: none; /* 默认隐藏 */
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.scrollup:hover {
+  background-color: var(--secondary-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

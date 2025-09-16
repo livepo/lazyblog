@@ -1,0 +1,155 @@
+ {{ template "header.tmpl" }}
+ <title>{{ .Post.Title }}</title>
+ <script>
+ function relativeTimeSimple(t) {
+    const now = new Date();
+    const duration = now - t; // 毫秒数
+
+    if (duration < 0) {
+        return "未来";
+    }
+
+    const seconds = Math.floor(duration / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (seconds < 60) {
+        return `${seconds}秒前`;
+    } else if (minutes < 60) {
+        return `${minutes}分钟前`;
+    } else if (hours < 24) {
+        return `${hours}小时前`;
+    } else if (days < 7) {
+        return `${days}天前`;
+    } else if (weeks < 4) {
+        return `${weeks}周前`;
+    } else if (months < 12) {
+        return `${months}月前`;
+    } else {
+        return `${years}年前`;
+    }
+}
+
+function submitCommentForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+
+  // 简单校验
+  if (!form.nickname.value.trim() || !form.email.value.trim() || !form.comment.value.trim()) {
+    alert('请填写昵称、邮箱和评论内容');
+    return;
+  }
+
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+  })
+  .then(res => res.ok ? res.text() : Promise.reject('提交失败'))
+  .then(data => {
+    alert('评论提交成功！');
+    form.reset();
+    fetchComments(); // 提交成功后刷新评论列表
+  })
+  .catch(err => alert(err));
+
+// 拉取评论列表并渲染
+function fetchComments() {
+  const sid = '{{ .Post.SID }}';
+  fetch(`/posts/${sid}/comments`)
+    .then(res => res.json())
+    .then(list => {
+      const commentList = document.querySelector('.comment-list');
+      let html = '<h4>评论列表:</h4>';
+      
+      list.forEach(item => {
+        // 根据website是否有内容来决定是否使用a标签
+        const nicknameHtml = item.website 
+          ? `<a class="nickname" href="${item.website}">${item.nickname}</a>`
+          : item.nickname;
+        
+        // 转换发布时间为相对时间
+        const pubDate = new Date(item.pub_date);
+        const relativeTime = relativeTimeSimple(pubDate);
+        
+        html += `<div class="comment-item">
+          <p><strong>${nicknameHtml}:</strong> ${item.content} <span class="meta-verbose">${relativeTime}</span></p>
+        </div>`;
+      });
+      
+      commentList.innerHTML = html;
+    })
+    .catch(() => {});
+}
+
+// 页面加载时拉取一次评论
+// window.addEventListener('DOMContentLoaded', fetchComments);
+}
+</script>
+ {{ template "middle.tmpl" }}
+  <div class="right-card">
+    <article>
+      <h2>{{ .Post.Title }}</h2>
+      <ul class="post-meta">
+        <li>📅 发表于{{ .Post.PubDate.Format "2006-01-02" }}</li>
+        <li>📁 <a href="/posts?category={{ .Post.Category }}">{{ .Post.Category }}</a></li>
+        <li>🏷️
+          {{ $tags := split .Post.Tags "," }}
+          {{ range $idx, $tag := $tags }}
+            <a href="/posts?tag={{ $tag }}">{{ $tag }}</a>{{ if lt $idx (sub (len $tags) 1) }} ● {{ end }}
+          {{ end }}
+        </li>
+      </ul>
+      <hr />
+      <div>{{ .Content }}</div>
+    </article>
+  </div>
+
+  <div class="right-card comment">
+    <form class="form" action="/posts/{{ .Post.SID }}/comment" method="post" onsubmit="submitCommentForm(event)">
+      <div class="form-group">
+        <label for="nickname">昵称:</label>
+        <input type="text" id="nickname" name="nickname" required placeholder="请输入昵称"/>
+      </div>
+      <div class="form-group">
+        <label for="email">邮箱:</label>
+        <input type="email" id="email" name="email" required placeholder="请输入邮箱"/>
+      </div>
+      <div class="form-group">
+        <label for="website">网址:</label>
+        <input type="url" id="website" name="website" placeholder="可选，输入您的网址"/>
+      </div>
+      <div class="comment-area">
+        <textarea class="comment-input" name="comment" required placeholder="请输入评论..."></textarea>
+        <button type="submit" class="comment-btn">发表评论</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="right-card comment">
+    <div class="comment-list" id="comment-list">
+      <h4>评论列表:</h4>
+      <div class="comment-item">
+        {{ range .Comments }}
+            <div class="comment-item" id="c-{{ .SID }}">
+                <p>
+                  <strong>
+                    {{ if .Website }}
+                      <a class="nickname" href="{{ .Website }}">{{ .Nickname }}</a>:
+                  {{ else }}
+                    {{ .Nickname }}:
+                  {{ end }}
+                  </strong> {{ .Content }} <span class="meta-verbose">{{ relativeTimeSimple .PubDate }}</span>
+                </p>
+            </div>
+        {{ else }}
+            <p>暂无评论 😭</p>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+   {{ template "footer.tmpl" }}

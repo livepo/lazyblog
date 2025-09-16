@@ -1,0 +1,42 @@
+{{ template "header.tmpl" }}
+ <title>{{ .Title }}</title>
+ {{ template "middle.tmpl" }}
+
+  {{ range .Posts }}
+    <div class="right-card">
+      <article>
+        <h2><a href="/posts/{{ .SID }}">{{ .Title }}</a></h2>
+        <ul class="post-meta">
+          <li>📅 发表于{{ .PubDate.Format "2006-01-02" }}</li>
+          <li>📁 <a href="/posts?category={{ .Category }}">{{ .Category }}</a></li>
+          <li>🏷️
+            {{ $tags := split .Tags "," }}
+            {{ range $idx, $tag := $tags }}
+              <a href="/posts?tag={{ $tag }}">{{ $tag }}</a>{{ if lt $idx (sub (len $tags) 1) }} ● {{ end }}
+            {{ end }}
+          </li>
+        </ul>
+        <p>{{ .Description }}</p>
+      </article>
+    </div>
+  {{ else }}
+    <div class="right-card"><h4>暂无文章</h4></div>
+  {{ end }}
+  {{ if gt .TotalPage 1 }}
+    <div class="right-card pagination">
+      {{ if gt .Page 1 }}
+        <a class="clickable-page" href="/posts?page={{ sub .Page 1 }}">上一页</a>
+      {{ end }}
+      {{ range $i := seq 1 .TotalPage }}
+        {{ if eq $i $.Page }}
+          <span class="current-page">{{ $i }}</span>
+        {{ else }}
+          <a class="clickable-page" href="/posts?page={{ $i }}">{{ $i }}</a>
+        {{ end }}
+      {{ end }}
+      {{ if lt .Page .TotalPage }}
+        <a class="clickable-page" href="/posts?page={{ add .Page 1 }}">下一页</a>
+      {{ end }}
+    </div>
+  {{ end }}
+{{ template "footer.tmpl" }}

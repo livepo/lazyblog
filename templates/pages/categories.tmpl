@@ -1,0 +1,12 @@
+ {{ template "header.tmpl" }}
+ <title>{{ .Title }}</title>
+ {{ template "middle.tmpl" }}
+  <div class="right-card height-viewport">
+  <h2>{{ .Title }}</h2>
+  {{ range .Data}}
+    <h4>{{ .Category }}  (<span><a href="/posts?category={{ .Category }}">{{ .Count }}</a></span>)</h4>
+  {{ else }}
+    <h4>暂无分类</h4>
+  {{ end }}
+  </div>
+ {{ template "footer.tmpl" }}

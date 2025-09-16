@@ -1,0 +1,23 @@
+{{ define "footer.tmpl" }}
+    </div>
+    <div class="scrollup" id="scrollup">⇧</div>
+  </div>
+  <script>
+    document.querySelector('.scrollup').addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    window.addEventListener('scroll', function() {
+      const scrollup = document.querySelector('.scrollup');
+      if (window.scrollY > 200) {
+        scrollup.style.display = 'block';
+      } else {
+        scrollup.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
+{{ end }}
