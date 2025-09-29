@@ -18,6 +18,12 @@ type MysqlConfig struct {
 	Database string
 }
 
+type SiteConfig struct {
+	Prefix string `mapstructure:"prefix"`
+	Title  string `mapstructure:"title"`
+	About  string `mapstructure:"about"`
+}
+
 type Auth struct {
 	Username string
 }
@@ -25,8 +31,7 @@ type Auth struct {
 type Config struct {
 	Mysql MysqlConfig `mapstructure:"mysql"`
 	Auth  Auth        `mapstructure:"auth"`
-	Title string      `mapstructure:"title"`
-	About string      `mapstructure:"about"`
+	Site  SiteConfig  `mapstructure:"site"`
 }
 
 func init() {

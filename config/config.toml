@@ -1,4 +1,6 @@
 debug = true
+[site]
+prefix = "/daily"
 title = "阿Q的博客"
 about = """
 **这是一个多行文本示例。**

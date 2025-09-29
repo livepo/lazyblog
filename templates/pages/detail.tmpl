@@ -60,7 +60,7 @@ function submitCommentForm(event) {
 // 拉取评论列表并渲染
 function fetchComments() {
   const sid = '{{ .Post.SID }}';
-  fetch(`/posts/${sid}/comments`)
+  fetch(`{{ getFromConfig "site.prifix" }}/posts/${sid}/comments`)
     .then(res => res.json())
     .then(list => {
       const commentList = document.querySelector('.comment-list');
@@ -96,11 +96,11 @@ function fetchComments() {
       <h2>{{ .Post.Title }}</h2>
       <ul class="post-meta">
         <li>📅 发表于{{ .Post.PubDate.Format "2006-01-02" }}</li>
-        <li>📁 <a href="/posts?category={{ .Post.Category }}">{{ .Post.Category }}</a></li>
+        <li>📁 <a href="{{ getFromConfig "site.prifix" }}/posts?category={{ .Post.Category }}">{{ .Post.Category }}</a></li>
         <li>🏷️
           {{ $tags := split .Post.Tags "," }}
           {{ range $idx, $tag := $tags }}
-            <a href="/posts?tag={{ $tag }}">{{ $tag }}</a>{{ if lt $idx (sub (len $tags) 1) }} ● {{ end }}
+            <a href="{{ getFromConfig "site.prifix" }}/posts?tag={{ $tag }}">{{ $tag }}</a>{{ if lt $idx (sub (len $tags) 1) }} ● {{ end }}
           {{ end }}
         </li>
       </ul>
@@ -110,7 +110,7 @@ function fetchComments() {
   </div>
 
   <div class="right-card comment">
-    <form class="form" action="/posts/{{ .Post.SID }}/comment" method="post" onsubmit="submitCommentForm(event)">
+    <form class="form" action="{{ getFromConfig "site.prifix" }}/posts/{{ .Post.SID }}/comment" method="post" onsubmit="submitCommentForm(event)">
       <div class="form-group">
         <label for="nickname">昵称:</label>
         <input type="text" id="nickname" name="nickname" required placeholder="请输入昵称"/>

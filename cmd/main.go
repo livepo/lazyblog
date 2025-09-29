@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"lazyblog/internal/controller"
 	"lazyblog/internal/model"
+	"lazyblog/pkg/config"
 	"lazyblog/pkg/invoker"
 	"lazyblog/pkg/middleware"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/yuin/goldmark"
 )
 
 func formatAsDate(t time.Time) string {
@@ -87,6 +89,14 @@ func main() {
 			}
 			return s[:n] + "..."
 		},
+		"getFromConfig": func(k string) string { return viper.GetString(k) },
+		"markdown": func(s string) template.HTML {
+			var buf strings.Builder
+			if err := goldmark.Convert([]byte(s), &buf); err != nil {
+				return template.HTML(s)
+			}
+			return template.HTML(buf.String())
+		},
 	})
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
@@ -95,17 +105,18 @@ func main() {
 		gin.SetMode(gin.DebugMode)
 	}
 	router.LoadHTMLGlob("templates/**/*.tmpl")
-	router.Static("static", "./static")
-	router.GET("/", controller.Home)
-	router.GET("/posts", controller.ListPosts)
-	router.GET("/posts/:sid", controller.PostDetail)
-	router.POST("/posts/:sid/like", controller.LikePost)
-	router.POST("/posts/:sid/comment", controller.CreateComment)
-	router.GET("/posts/:sid/comments", controller.ListComments)
-	router.GET("/tags", controller.ListTags)
-	router.GET("/categories", controller.ListCategories)
-	router.GET("/archive", controller.ListArchive)
-	router.GET("/about", controller.About)
+	daily := router.Group(config.Cfg.Site.Prefix)
+	daily.Static("/static", "./static")
+	daily.GET("", controller.Home)
+	daily.GET("/posts", controller.ListPosts)
+	daily.GET("/posts/:sid", controller.PostDetail)
+	daily.POST("/posts/:sid/like", controller.LikePost)
+	daily.POST("/posts/:sid/comment", controller.CreateComment)
+	daily.GET("/posts/:sid/comments", controller.ListComments)
+	daily.GET("/tags", controller.ListTags)
+	daily.GET("/categories", controller.ListCategories)
+	daily.GET("/archive", controller.ListArchive)
+	daily.GET("/about", controller.About)
 	// router.POST("/posts", controller.CreatePost)
 	// router.GET("/admin/create", controller.AdminCreatePostPage)
 	// api.PUT("/posts/:sid", controller.UpdatePost)
