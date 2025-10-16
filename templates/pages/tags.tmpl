@@ -4,7 +4,7 @@
   <div class="right-card height-viewport">
     <h2>{{ .Title }}</h2>
   {{ range .Data}}
-      <h4>{{ .Tag }} (<span><a href="{{ getFromConfig "site.prifix" }}/posts?tags={{ .Tag }}">{{ .Count }}</a></span>)</h4>
+  <h4>{{ .Tag }} (<span><a href="{{ getFromConfig "site.prefix" }}/posts?tags={{ .Tag }}">{{ .Count }}</a></span>)</h4>
   {{ else }}
     <h4>暂无标签</h4>
   {{ end }}

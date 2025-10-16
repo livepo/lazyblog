@@ -6,7 +6,7 @@
   {{ range .Data }}
     <h3>{{ .Year }} 年 {{ .Month }} 月</h3>
     {{ range .Posts }}
-      <h4><a href="{{ getFromConfig "site.prifix" }}/posts/{{ .SID }}">{{ .Title }}</a> <span class="meta-verbose">({{ .PubDate.Format "2006-01-02" }})</span></h4>
+  <h4><a href="{{ getFromConfig "site.prefix" }}/posts/{{ .SID }}">{{ .Title }}</a> <span class="meta-verbose">({{ .PubDate.Format "2006-01-02" }})</span></h4>
     {{ else }}
       <h4>暂无文章</h4>
     {{ end }}
