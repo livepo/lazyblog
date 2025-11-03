@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>{{ getFromConfig "site.title" }}</title>
+	<link href="{{ getFromConfig "site.prefix" }}" />
+	<link rel="self" href="{{ getFromConfig "site.prefix" }}/atom.xml" />
+	<id>{{ getFromConfig "site.prefix" }}</id>
+	{{ if gt (len .Posts) 0 }}
+		{{ $latest := index .Posts 0 }}
+		<updated>{{ $latest.PubDate.Format "2006-01-02T15:04:05Z07:00" }}</updated>
+	{{ else }}
+		<updated>1970-01-01T00:00:00Z</updated>
+	{{ end }}
+	<author>
+		<name>{{ getFromConfig "site.author" }}</name>
+	</author>
+
+	{{ range .Posts }}
+		<entry>
+			<title>{{ .Title }}</title>
+			<link href="{{ getFromConfig "site.prefix" }}/posts/{{ .SID }}" />
+			<id>{{ printf "%s/posts/%d" (getFromConfig "site.prefix") .SID }}</id>
+			<updated>{{ .PubDate.Format "2006-01-02T15:04:05Z07:00" }}</updated>
+			{{ if .Description }}
+				<summary type="html">{{ .Description }}</summary>
+			{{ end }}
+			<content type="html">{{ .Content }}</content>
+
+			{{ $tags := split .Tags "," }}
+			{{ range $tag := $tags }}
+				{{ if ne $tag "" }}
+					<category term="{{ $tag }}" />
+				{{ end }}
+			{{ end }}
+			<author>
+				<name>{{ if .Author }}{{ .Author }}{{ else }}{{ getFromConfig "site.author" }}{{ end }}</name>
+			</author>
+		</entry>
+	{{ end }}
+</feed>

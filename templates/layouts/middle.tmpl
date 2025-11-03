@@ -5,19 +5,19 @@
   <div class="main">
     <div class="left">
       <div class="site-name">{{ .Title }}</div>
-      <div class="avatar"><img src="/static/avatar.jpg" alt="avatar"></div>
+      <div class="avatar"><img src="{{ getFromConfig "site.prefix" }}/static/avatar.jpg" alt="avatar"></div>
       <div class="nav">
-  <a href="{{ getFromConfig "site.prefix" }}">首页</a>
-  <a href="{{ getFromConfig "site.prefix" }}/posts">文章</a>
-  <a href="{{ getFromConfig "site.prefix" }}/categories">分类</a>
-  <a href="{{ getFromConfig "site.prefix" }}/archive">归档</a>
-  <a href="{{ getFromConfig "site.prefix" }}/tags">标签</a>
-  <a href="{{ getFromConfig "site.prefix" }}/about">关于</a> 
+        <a href="{{ getFromConfig "site.prefix" }}">首页</a>
+        <a href="{{ getFromConfig "site.prefix" }}/posts">文章</a>
+        <a href="{{ getFromConfig "site.prefix" }}/categories">分类</a>
+        <a href="{{ getFromConfig "site.prefix" }}/archive">归档</a>
+        <a href="{{ getFromConfig "site.prefix" }}/tags">标签</a>
+        <a href="{{ getFromConfig "site.prefix" }}/about">关于</a>
+        <a href="{{ getFromConfig "site.prefix" }}/atom.xml">RSS</a>
       </div>
       <div class="social-links">
-        <a href="#">GitHub</a>
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
+        <a href="{{ getFromConfig "site.github" }}">GitHub</a>
+        <a href="{{ getFromConfig "site.twitter" }}">Twitter</a>
       </div>
     </div>
     <div class="right">
