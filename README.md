@@ -20,3 +20,9 @@ go run cmd/publish.go ${dir}/xxx.md
 ![](./static/image2.png)
 
 ![](./static/image3.png)
+
+## TODO
+
+- 接入图床
+- 编辑发布页
+- markdown支持mermaid
