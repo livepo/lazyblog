@@ -18,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22.1'
+          go-version: '1.22'
 
       - name: Build
         run: |
@@ -52,27 +52,24 @@ jobs:
         with:
           name: lazyblog-binary
 
-      - name: Copy binary to test server
-        uses: appleboy/scp-action@v0.1.8
-        with:
-          host: ${{ secrets.TEST_HOST }}
-          username: ${{ secrets.TEST_USER }}
-          key: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.TEST_SSH_PORT }}
-          source: "lazyblog"
-          target: ${{ secrets.TEST_PATH }}
+      - name: Prepare SSH for test server
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.TEST_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.TEST_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Restart test service
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: ${{ secrets.TEST_HOST }}
-          username: ${{ secrets.TEST_USER }}
-          key: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.TEST_SSH_PORT }}
-          script: |
-            set -e
-            # adjust below to match how your service is managed on the test server
-            sudo systemctl restart ${{ secrets.TEST_SERVICE_NAME }} || true
+      - name: Copy binary to test server (scp)
+        run: |
+          PORT="${{ secrets.TEST_SSH_PORT }}"
+          if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
+          scp $SCP_PORT_FLAG lazyblog "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:${{ secrets.TEST_PATH }}"
+
+      - name: Restart test service (ssh)
+        run: |
+          PORT="${{ secrets.TEST_SSH_PORT }}"
+          if [ -n "$PORT" ]; then SSH_PORT_FLAG="-p $PORT"; else SSH_PORT_FLAG=""; fi
+          ssh $SSH_PORT_FLAG "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}" "set -e; sudo systemctl restart ${{ secrets.TEST_SERVICE_NAME }} || true"
 
   deploy-prod:
     name: Deploy to production when tag does NOT end with -debug
@@ -85,23 +82,21 @@ jobs:
         with:
           name: lazyblog-binary
 
-      - name: Copy binary to prod server
-        uses: appleboy/scp-action@v0.1.8
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.PROD_SSH_PORT }}
-          source: "lazyblog"
-          target: ${{ secrets.PROD_PATH }}
+      - name: Prepare SSH for prod server
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.PROD_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Restart prod service
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.PROD_SSH_PORT }}
-          script: |
-            set -e
-            sudo systemctl restart ${{ secrets.PROD_SERVICE_NAME }} || true
+      - name: Copy binary to prod server (scp)
+        run: |
+          PORT="${{ secrets.PROD_SSH_PORT }}"
+          if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
+          scp $SCP_PORT_FLAG lazyblog "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:${{ secrets.PROD_PATH }}"
+
+      - name: Restart prod service (ssh)
+        run: |
+          PORT="${{ secrets.PROD_SSH_PORT }}"
+          if [ -n "$PORT" ]; then SSH_PORT_FLAG="-p $PORT"; else SSH_PORT_FLAG=""; fi
+          ssh $SSH_PORT_FLAG "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}" "set -e; sudo systemctl restart ${{ secrets.PROD_SERVICE_NAME }} || true"
