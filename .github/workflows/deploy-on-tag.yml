@@ -64,17 +64,20 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.TEST_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Copy binary to test server (scp)
+      - name: Upload binary to test host (tmp)
         run: |
           PORT="${{ secrets.TEST_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
-          scp $SCP_PORT_FLAG lazyblog "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:${{ secrets.TEST_PATH }}"
+          # copy to remote user's home as a temporary file, then atomically move with sudo
+          scp $SCP_PORT_FLAG lazyblog "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:~/lazyblog.tmp"
 
-      - name: Restart test service (ssh)
+      - name: Stop service, move binary and start (test)
         run: |
           PORT="${{ secrets.TEST_SSH_PORT }}"
           if [ -n "$PORT" ]; then SSH_PORT_FLAG="-p $PORT"; else SSH_PORT_FLAG=""; fi
-          ssh $SSH_PORT_FLAG "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}" "set -e; sudo systemctl restart ${{ secrets.TEST_SERVICE_NAME }} || true"
+          TARGET_DIR="${{ secrets.TEST_PATH }}"
+          # Remote sequence: stop service, move temp binary into place, set executable, start service
+          ssh $SSH_PORT_FLAG "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}" "set -e; sudo systemctl stop ${{ secrets.TEST_SERVICE_NAME }} || true; sudo mv -f ~/lazyblog.tmp \"${TARGET_DIR%/}/lazyblog\"; sudo chmod +x \"${TARGET_DIR%/}/lazyblog\"; sudo systemctl start ${{ secrets.TEST_SERVICE_NAME }}"
 
   deploy-prod:
     name: Deploy to production when tag does NOT end with -debug
@@ -94,14 +97,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.PROD_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Copy binary to prod server (scp)
+      - name: Upload binary to prod host (tmp)
         run: |
           PORT="${{ secrets.PROD_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
-          scp $SCP_PORT_FLAG lazyblog "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:${{ secrets.PROD_PATH }}"
+          scp $SCP_PORT_FLAG lazyblog "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/lazyblog.tmp"
 
-      - name: Restart prod service (ssh)
+      - name: Stop service, move binary and start (prod)
         run: |
           PORT="${{ secrets.PROD_SSH_PORT }}"
           if [ -n "$PORT" ]; then SSH_PORT_FLAG="-p $PORT"; else SSH_PORT_FLAG=""; fi
-          ssh $SSH_PORT_FLAG "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}" "set -e; sudo systemctl restart ${{ secrets.PROD_SERVICE_NAME }} || true"
+          TARGET_DIR="${{ secrets.PROD_PATH }}"
+          ssh $SSH_PORT_FLAG "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}" "set -e; sudo systemctl stop ${{ secrets.PROD_SERVICE_NAME }} || true; sudo mv -f ~/lazyblog.tmp \"${TARGET_DIR%/}/lazyblog\"; sudo chmod +x \"${TARGET_DIR%/}/lazyblog\"; sudo systemctl start ${{ secrets.PROD_SERVICE_NAME }}"
