@@ -1,0 +1,106 @@
+name: Deploy on Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build binary
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set_tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Build
+        run: |
+          echo "Building..."
+          go version
+          go env
+          go build -v -o lazyblog ./cmd
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lazyblog-binary
+          path: lazyblog
+
+      - id: set_tag
+        name: Export tag name
+        run: |
+          # github.ref is refs/tags/<tag>
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+
+  deploy-debug:
+    name: Deploy to test (debug) when tag ends with -debug
+    runs-on: ubuntu-latest
+    needs: build
+    if: endsWith(needs.build.outputs.tag, '-debug')
+    steps:
+      - name: Download built binary
+        uses: actions/download-artifact@v4
+        with:
+          name: lazyblog-binary
+
+      - name: Copy binary to test server
+        uses: appleboy/scp-action@v0.1.8
+        with:
+          host: ${{ secrets.TEST_HOST }}
+          username: ${{ secrets.TEST_USER }}
+          key: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.TEST_SSH_PORT }}
+          source: "lazyblog"
+          target: ${{ secrets.TEST_PATH }}
+
+      - name: Restart test service
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.TEST_HOST }}
+          username: ${{ secrets.TEST_USER }}
+          key: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.TEST_SSH_PORT }}
+          script: |
+            set -e
+            # adjust below to match how your service is managed on the test server
+            sudo systemctl restart ${{ secrets.TEST_SERVICE_NAME }} || true
+
+  deploy-prod:
+    name: Deploy to production when tag does NOT end with -debug
+    runs-on: ubuntu-latest
+    needs: build
+    if: not(endsWith(needs.build.outputs.tag, '-debug'))
+    steps:
+      - name: Download built binary
+        uses: actions/download-artifact@v4
+        with:
+          name: lazyblog-binary
+
+      - name: Copy binary to prod server
+        uses: appleboy/scp-action@v0.1.8
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT }}
+          source: "lazyblog"
+          target: ${{ secrets.PROD_PATH }}
+
+      - name: Restart prod service
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT }}
+          script: |
+            set -e
+            sudo systemctl restart ${{ secrets.PROD_SERVICE_NAME }} || true
