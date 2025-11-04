@@ -107,7 +107,7 @@ func main() {
 	router.LoadHTMLGlob("templates/**/*.tmpl")
 	daily := router.Group(config.Cfg.Site.Prefix)
 	daily.Static("/static", "./static")
-	daily.GET("", controller.Home)
+	daily.GET("/", controller.Home)
 	daily.GET("/posts", controller.ListPosts)
 	daily.GET("/posts/:sid", controller.PostDetail)
 	daily.POST("/posts/:sid/like", controller.LikePost)
