@@ -26,3 +26,4 @@ go run cmd/publish.go ${dir}/xxx.md
 - 接入图床
 - 编辑发布页
 - markdown支持mermaid
+- templates和static加入ci
