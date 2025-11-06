@@ -6,24 +6,17 @@
 
 ## 文章发表
 
+重名文件覆盖式发布
+
 ```sh
-cp test/post.md.example ${dir}/xxx.md
-
-vim ${dir}/xxx.md
-
-go run cmd/publish.go ${dir}/xxx.md
+curl -v -X POST \
+  -H "X-Admin-Token: YOUR_ADMIN_TOKEN_HERE" \
+  -F "file=@/path/to/local/file.md" \
+  http://localhost:8080/admin/publish
 ```
-
-## 截图
-![](./static/image1.png)
-
-![](./static/image2.png)
-
-![](./static/image3.png)
+## 效果
+见 [阿Q的博客](https://docset.vip)
 
 ## TODO
-
 - 接入图床
-- 编辑发布页
 - markdown支持mermaid
-- templates和static加入ci
