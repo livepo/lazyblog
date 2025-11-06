@@ -25,7 +25,7 @@ type SiteConfig struct {
 }
 
 type Auth struct {
-	XAdminToken string
+	XAdminToken string `mapstructure:"XAdminToken"`
 }
 
 type Config struct {
