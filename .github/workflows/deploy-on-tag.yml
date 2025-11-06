@@ -78,17 +78,13 @@ jobs:
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
           scp $SCP_PORT_FLAG deploy.tar.gz "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:~/deploy.tar.gz"
           rm -f deploy.tar.gz
-
-      - name: Stop service, extract archive, move files and start (test) with backup & healthcheck
+      - name: Upload remote_deploy.sh and run deploy (test)
         run: |
+          # copy helper script to remote and run it with args
           PORT="${{ secrets.TEST_SSH_PORT }}"
-          if [ -n "$PORT" ]; then SSH_PORT_FLAG="-p $PORT"; else SSH_PORT_FLAG=""; fi
-          TARGET_DIR="${{ secrets.TEST_PATH }}"
-          SERVICE_NAME="${{ secrets.TEST_SERVICE_NAME }}"
-          if [ -z "$TARGET_DIR" ]; then echo "ERROR: TEST_PATH is not set"; exit 1; fi
-          if [ -z "$SERVICE_NAME" ]; then echo "ERROR: TEST_SERVICE_NAME is not set"; exit 1; fi
-          echo "Deploying to TEST host=${{ secrets.TEST_HOST }} user=${{ secrets.TEST_USER }} target=$TARGET_DIR service=$SERVICE_NAME"
-          ssh $SSH_PORT_FLAG "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}" "set -e; SERVICE=\"$SERVICE_NAME\"; TARGET=\"${TARGET_DIR%/}\"; BACKUP_DIR=\"/var/backups/${SERVICE_NAME}-$(date +%s)\"; sudo mkdir -p \"$BACKUP_DIR\"; sudo systemctl stop \"$SERVICE\" || true; if [ -f \"$TARGET/lazyblog\" ]; then sudo mv -f \"$TARGET/lazyblog\" \"$BACKUP_DIR/\"; fi; if [ -d \"$TARGET/static\" ]; then sudo mv -f \"$TARGET/static\" \"$BACKUP_DIR/\"; fi; if [ -d \"$TARGET/templates\" ]; then sudo mv -f \"$TARGET/templates\" \"$BACKUP_DIR/\"; fi; TMPDIR=\"/tmp/deploy.$$\"; rm -rf \"$TMPDIR\"; mkdir -p \"$TMPDIR\"; sudo tar -xzf ~/deploy.tar.gz -C \"$TMPDIR\"; sudo mkdir -p \"$TARGET\"; if [ -f \"$TMPDIR/lazyblog\" ]; then sudo mv -f \"$TMPDIR/lazyblog\" \"$TARGET/lazyblog\"; sudo chmod +x \"$TARGET/lazyblog\"; fi; if [ -d \"$TMPDIR/static\" ]; then sudo rm -rf \"$TARGET/static\"; sudo mv -f \"$TMPDIR/static\" \"$TARGET/static\"; fi; if [ -d \"$TMPDIR/templates\" ]; then sudo rm -rf \"$TARGET/templates\"; sudo mv -f \"$TMPDIR/templates\" \"$TARGET/templates\"; fi; rm -rf \"$TMPDIR\"; sudo rm -f ~/deploy.tar.gz; sudo systemctl start \"$SERVICE\"; sleep 3; if curl -sSf --max-time 2 http://127.0.0.1:8080/ready >/dev/null 2>&1; then ls -dt /var/backups/${SERVICE_NAME}-* 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf; echo 'health ok'; else echo 'health check failed, rolling back'; sudo systemctl stop \"$SERVICE\" || true; if [ -d \"$BACKUP_DIR\" ]; then if [ -f \"$BACKUP_DIR/lazyblog\" ]; then sudo mv -f \"$BACKUP_DIR/lazyblog\" \"$TARGET/lazyblog\"; sudo chmod +x \"$TARGET/lazyblog\"; fi; if [ -d \"$BACKUP_DIR/static\" ]; then sudo rm -rf \"$TARGET/static\"; sudo mv -f \"$BACKUP_DIR/static\" \"$TARGET/static\"; fi; if [ -d \"$BACKUP_DIR/templates\" ]; then sudo rm -rf \"$TARGET/templates\"; sudo mv -f \"$BACKUP_DIR/templates\" \"$TARGET/templates\"; fi; sudo systemctl start \"$SERVICE\"; fi; exit 1; fi"
+          if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; SSH_PORT_FLAG="-p $PORT"; else SCP_PORT_FLAG=""; SSH_PORT_FLAG=""; fi
+          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:~/remote_deploy.sh"
+          ssh $SSH_PORT_FLAG "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}" "chmod +x ~/remote_deploy.sh && bash ~/remote_deploy.sh --service '${{ secrets.TEST_SERVICE_NAME }}' --target '${{ secrets.TEST_PATH }}' --archive ~/deploy.tar.gz --backups-dir /var/backups --keep 3 --health-url 'http://127.0.0.1:8080/ready' --health-timeout 2"
 
   deploy-prod:
     name: Deploy to production when tag does NOT end with -debug
@@ -122,13 +118,10 @@ jobs:
           scp $SCP_PORT_FLAG deploy.tar.gz "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/deploy.tar.gz"
           rm -f deploy.tar.gz
 
-      - name: Stop service, extract archive, move files and start (prod) with backup & healthcheck
+      - name: Upload remote_deploy.sh and run deploy (prod)
         run: |
+          # copy helper script to remote and run it with args (prod)
           PORT="${{ secrets.PROD_SSH_PORT }}"
-          if [ -n "$PORT" ]; then SSH_PORT_FLAG="-p $PORT"; else SSH_PORT_FLAG=""; fi
-          TARGET_DIR="${{ secrets.PROD_PATH }}"
-          SERVICE_NAME="${{ secrets.PROD_SERVICE_NAME }}"
-          if [ -z "$TARGET_DIR" ]; then echo "ERROR: PROD_PATH is not set"; exit 1; fi
-          if [ -z "$SERVICE_NAME" ]; then echo "ERROR: PROD_SERVICE_NAME is not set"; exit 1; fi
-          echo "Deploying to PROD host=${{ secrets.PROD_HOST }} user=${{ secrets.PROD_USER }} target=$TARGET_DIR service=$SERVICE_NAME"
-          ssh $SSH_PORT_FLAG "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}" "set -e; SERVICE=\"$SERVICE_NAME\"; TARGET=\"${TARGET_DIR%/}\"; BACKUP_DIR=\"/var/backups/${SERVICE_NAME}-$(date +%s)\"; sudo mkdir -p \"$BACKUP_DIR\"; sudo systemctl stop \"$SERVICE\" || true; if [ -f \"$TARGET/lazyblog\" ]; then sudo mv -f \"$TARGET/lazyblog\" \"$BACKUP_DIR/\"; fi; if [ -d \"$TARGET/static\" ]; then sudo mv -f \"$TARGET/static\" \"$BACKUP_DIR/\"; fi; if [ -d \"$TARGET/templates\" ]; then sudo mv -f \"$TARGET/templates\" \"$BACKUP_DIR/\"; fi; TMPDIR=\"/tmp/deploy.$$\"; rm -rf \"$TMPDIR\"; mkdir -p \"$TMPDIR\"; sudo tar -xzf ~/deploy.tar.gz -C \"$TMPDIR\"; sudo mkdir -p \"$TARGET\"; if [ -f \"$TMPDIR/lazyblog\" ]; then sudo mv -f \"$TMPDIR/lazyblog\" \"$TARGET/lazyblog\"; sudo chmod +x \"$TARGET/lazyblog\"; fi; if [ -d \"$TMPDIR/static\" ]; then sudo rm -rf \"$TARGET/static\"; sudo mv -f \"$TMPDIR/static\" \"$TARGET/static\"; fi; if [ -d \"$TMPDIR/templates\" ]; then sudo rm -rf \"$TARGET/templates\"; sudo mv -f \"$TMPDIR/templates\" \"$TARGET/templates\"; fi; rm -rf \"$TMPDIR\"; sudo rm -f ~/deploy.tar.gz; sudo systemctl start \"$SERVICE\"; sleep 3; if curl -sSf --max-time 2 http://127.0.0.1:8080/ready >/dev/null 2>&1; then ls -dt /var/backups/${SERVICE_NAME}-* 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf; echo 'health ok'; else echo 'health check failed, rolling back'; sudo systemctl stop \"$SERVICE\" || true; if [ -d \"$BACKUP_DIR\" ]; then if [ -f \"$BACKUP_DIR/lazyblog\" ]; then sudo mv -f \"$BACKUP_DIR/lazyblog\" \"$TARGET/lazyblog\"; sudo chmod +x \"$TARGET/lazyblog\"; fi; if [ -d \"$BACKUP_DIR/static\" ]; then sudo rm -rf \"$TARGET/static\"; sudo mv -f \"$BACKUP_DIR/static\" \"$TARGET/static\"; fi; if [ -d \"$BACKUP_DIR/templates\" ]; then sudo rm -rf \"$TARGET/templates\"; sudo mv -f \"$BACKUP_DIR/templates\" \"$TARGET/templates\"; fi; sudo systemctl start \"$SERVICE\"; fi; exit 1; fi"
+          if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; SSH_PORT_FLAG="-p $PORT"; else SCP_PORT_FLAG=""; SSH_PORT_FLAG=""; fi
+          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/remote_deploy.sh"
+          ssh $SSH_PORT_FLAG "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}" "chmod +x ~/remote_deploy.sh && bash ~/remote_deploy.sh --service '${{ secrets.PROD_SERVICE_NAME }}' --target '${{ secrets.PROD_PATH }}' --archive ~/deploy.tar.gz --backups-dir /var/backups --keep 3 --health-url 'http://127.0.0.1:8080/ready' --health-timeout 2"
