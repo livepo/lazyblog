@@ -119,7 +119,7 @@ func main() {
 	daily.GET("/about", controller.About)
 	daily.GET("/atom.xml", controller.AtomFeed)
 	// router.POST("/posts", controller.CreatePost)
-	// router.GET("/admin/create", controller.AdminCreatePostPage)
+	router.POST("/admin/publish", controller.AdminCreatePost)
 	// api.PUT("/posts/:sid", controller.UpdatePost)
 	// api.DELETE("/posts/:sid", controller.DeletePost)
 

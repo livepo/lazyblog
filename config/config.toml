@@ -23,4 +23,4 @@ user = "root"
 password = "123456"
 database = "lazyblog"
 [auth]
-username = "admin123"
+XAdminToken = "xxx"

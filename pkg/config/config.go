@@ -25,7 +25,7 @@ type SiteConfig struct {
 }
 
 type Auth struct {
-	Username string
+	XAdminToken string
 }
 
 type Config struct {
