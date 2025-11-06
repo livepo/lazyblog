@@ -18,5 +18,4 @@ curl -v -X POST \
 见 [阿Q的博客](https://docset.vip)
 
 ## TODO
-- 接入图床
 - markdown支持mermaid
