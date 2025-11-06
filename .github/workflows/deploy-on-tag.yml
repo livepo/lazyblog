@@ -54,6 +54,12 @@ jobs:
           name: lazyblog-deploy
           path: deploy.tar.gz
 
+      - name: Upload deploy script
+        uses: actions/upload-artifact@v4
+        with:
+          name: lazyblog-deploy-script
+          path: scripts/remote_deploy.sh
+
       - id: set_tag
         name: Export tag name
         run: |
@@ -71,6 +77,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lazyblog-deploy
+
+      - name: Download deploy script
+        uses: actions/download-artifact@v4
+        with:
+          name: lazyblog-deploy-script
 
       - name: Prepare SSH for test server
         run: |
@@ -106,6 +117,11 @@ jobs:
         with:
           name: lazyblog-deploy
 
+      - name: Download deploy script
+        uses: actions/download-artifact@v4
+        with:
+          name: lazyblog-deploy-script
+
       - name: Prepare SSH for prod server
         run: |
           mkdir -p ~/.ssh
@@ -120,7 +136,7 @@ jobs:
           PORT="${{ secrets.PROD_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
           scp $SCP_PORT_FLAG deploy.tar.gz "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/deploy.tar.gz"
-          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/remote_deploy.sh"
+          scp $SCP_PORT_FLAG remote_deploy.sh "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/remote_deploy.sh"
           rm -f deploy.tar.gz
 
       - name: Upload remote_deploy.sh and run deploy (prod)
