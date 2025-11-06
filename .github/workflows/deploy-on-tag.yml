@@ -77,13 +77,13 @@ jobs:
           PORT="${{ secrets.TEST_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
           scp $SCP_PORT_FLAG deploy.tar.gz "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:~/deploy.tar.gz"
+          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:~/remote_deploy.sh"
           rm -f deploy.tar.gz
       - name: Upload remote_deploy.sh and run deploy (test)
         run: |
           # copy helper script to remote and run it with args
           PORT="${{ secrets.TEST_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; SSH_PORT_FLAG="-p $PORT"; else SCP_PORT_FLAG=""; SSH_PORT_FLAG=""; fi
-          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}:~/remote_deploy.sh"
           ssh $SSH_PORT_FLAG "${{ secrets.TEST_USER }}@${{ secrets.TEST_HOST }}" "chmod +x ~/remote_deploy.sh && bash ~/remote_deploy.sh --service '${{ secrets.TEST_SERVICE_NAME }}' --target '${{ secrets.TEST_PATH }}' --archive ~/deploy.tar.gz --backups-dir /var/backups --keep 3 --health-url 'http://127.0.0.1:8080/ready' --health-timeout 2"
 
   deploy-prod:
@@ -116,6 +116,7 @@ jobs:
           PORT="${{ secrets.PROD_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; else SCP_PORT_FLAG=""; fi
           scp $SCP_PORT_FLAG deploy.tar.gz "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/deploy.tar.gz"
+          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/remote_deploy.sh"
           rm -f deploy.tar.gz
 
       - name: Upload remote_deploy.sh and run deploy (prod)
@@ -123,5 +124,4 @@ jobs:
           # copy helper script to remote and run it with args (prod)
           PORT="${{ secrets.PROD_SSH_PORT }}"
           if [ -n "$PORT" ]; then SCP_PORT_FLAG="-P $PORT"; SSH_PORT_FLAG="-p $PORT"; else SCP_PORT_FLAG=""; SSH_PORT_FLAG=""; fi
-          scp $SCP_PORT_FLAG scripts/remote_deploy.sh "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:~/remote_deploy.sh"
           ssh $SSH_PORT_FLAG "${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}" "chmod +x ~/remote_deploy.sh && bash ~/remote_deploy.sh --service '${{ secrets.PROD_SERVICE_NAME }}' --target '${{ secrets.PROD_PATH }}' --archive ~/deploy.tar.gz --backups-dir /var/backups --keep 3 --health-url 'http://127.0.0.1:8080/ready' --health-timeout 2"
