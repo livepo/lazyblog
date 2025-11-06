@@ -28,10 +28,19 @@ type Auth struct {
 	XAdminToken string `mapstructure:"XAdminToken"`
 }
 
+type ImageHostingConfig struct {
+	Enable       bool   `mapstructure:"enable"`
+	Provider     string `mapstructure:"provider"`
+	ClientId     string `mapstructure:"clientId"`
+	ClientSecret string `mapstructure:"clientSecret"`
+	AlbumId      string `mapstructure:"albumId"`
+}
+
 type Config struct {
-	Mysql MysqlConfig `mapstructure:"mysql"`
-	Auth  Auth        `mapstructure:"auth"`
-	Site  SiteConfig  `mapstructure:"site"`
+	Mysql         MysqlConfig          `mapstructure:"mysql"`
+	Auth          Auth                 `mapstructure:"auth"`
+	Site          SiteConfig           `mapstructure:"site"`
+	ImageHostings []ImageHostingConfig `mapstructure:"imageHostings"`
 }
 
 func init() {

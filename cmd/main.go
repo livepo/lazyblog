@@ -120,6 +120,7 @@ func main() {
 	sitePrefix.GET("/atom.xml", controller.AtomFeed)
 	// router.POST("/posts", controller.CreatePost)
 	router.POST("/admin/publish", controller.AdminCreatePost)
+	router.POST("/admin/upload", controller.AdminUploadImage) // 选择合适的图床上传
 	router.GET("/ready", func(c *gin.Context) {
 		c.String(200, "ok")
 	})
