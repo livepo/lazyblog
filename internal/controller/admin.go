@@ -6,6 +6,9 @@ import (
 	"lazyblog/internal/model"
 	"lazyblog/pkg/config"
 	"lazyblog/pkg/invoker"
+	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -14,10 +17,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type AdminPostRequest struct {
-	Content string `json:"content" binding:"required"`
-}
-
 func AdminCreatePost(c *gin.Context) {
 	token := c.GetHeader("X-Admin-Token")
 
@@ -25,12 +24,43 @@ func AdminCreatePost(c *gin.Context) {
 		c.JSON(401, gin.H{"error": "unauthorized"})
 		return
 	}
-	var req AdminPostRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(400, gin.H{"error": "file is required"})
 		return
 	}
-	blog, err := parse(req.Content)
+
+	filename := fileHeader.Filename
+	log.Printf("Received file: %s", filename)
+
+	f, err := fileHeader.Open()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	defer f.Close()
+
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(f); err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 备份上传的原始文件到 posts/<filename>
+	safeName := filepath.Base(filename)
+	postsDir := "posts"
+	if err := os.MkdirAll(postsDir, 0755); err != nil {
+		c.JSON(500, gin.H{"error": "failed to create posts dir"})
+		return
+	}
+	backupPath := filepath.Join(postsDir, safeName)
+	if err := os.WriteFile(backupPath, buf.Bytes(), 0644); err != nil {
+		c.JSON(500, gin.H{"error": fmt.Sprintf("failed to save backup: %v", err)})
+		return
+	}
+
+	blog, err := parse(buf.String(), filename)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -52,7 +82,7 @@ type blog struct {
 	Category    string `yaml:"category"` // Category of the post
 }
 
-func parse(content string) (*blog, error) {
+func parse(content string, filename string) (*blog, error) {
 	// 找到 front-matter
 	if !strings.HasPrefix(content, "---") {
 		return nil, fmt.Errorf("file missing front-matter")
@@ -73,9 +103,9 @@ func parse(content string) (*blog, error) {
 	blog.Markdown = bodyPart
 
 	var post model.Post
-	if err := invoker.DB.Model(&model.Post{}).Where("title = ?", blog.Title).First(&post).Error; err == nil {
+	if err := invoker.DB.Model(&model.Post{}).Where("file = ?", filename).First(&post).Error; err == nil {
 		fmt.Println("Post already exists, updating...")
-		// post.Title = blog.Title
+		post.Title = blog.Title
 		post.Description = blog.Description
 		post.Author = blog.Author
 		post.Published = blog.Published
@@ -100,13 +130,13 @@ func parse(content string) (*blog, error) {
 		post.Tags = blog.Tags
 		post.Category = blog.Category
 		post.Markdown = bodyPart
+		post.File = filename
 		var buf bytes.Buffer
 		if err := goldmark.Convert([]byte(bodyPart), &buf); err != nil {
 			return nil, fmt.Errorf("markdown conversion error: %w", err)
 		}
 		post.Content = buf.String()
 		post.SID = model.GenerateSID()
-		post.File = "create by api"
 		invoker.DB.Create(&post)
 	}
 
