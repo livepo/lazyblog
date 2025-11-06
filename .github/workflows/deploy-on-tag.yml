@@ -39,6 +39,21 @@ jobs:
           name: lazyblog-binary
           path: lazyblog
 
+      - name: Create deploy archive (build)
+        run: |
+          # package the built binary together with templates/static/scripts if present
+          FILES="lazyblog"
+          if [ -d static ]; then FILES="$FILES static"; fi
+          if [ -d templates ]; then FILES="$FILES templates"; fi
+          if [ -d scripts ]; then FILES="$FILES scripts"; fi
+          tar -czf deploy.tar.gz $FILES || true
+
+      - name: Upload deploy archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lazyblog-deploy
+          path: deploy.tar.gz
+
       - id: set_tag
         name: Export tag name
         run: |
@@ -52,10 +67,10 @@ jobs:
     needs: build
     if: endsWith(needs.build.outputs.tag, '-debug')
     steps:
-      - name: Download built binary
+      - name: Download deploy archive
         uses: actions/download-artifact@v4
         with:
-          name: lazyblog-binary
+          name: lazyblog-deploy
 
       - name: Prepare SSH for test server
         run: |
@@ -64,13 +79,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.TEST_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Create deploy archive (test)
-        run: |
-          # include lazyblog and optional static/templates directories if present
-          FILES="lazyblog"
-          if [ -d static ]; then FILES="$FILES static"; fi
-          if [ -d templates ]; then FILES="$FILES templates"; fi
-          tar -czf deploy.tar.gz $FILES || true
+      # deploy archive is produced by the build job and downloaded above
 
       - name: Upload deploy archive to test host
         run: |
@@ -92,10 +101,10 @@ jobs:
     needs: build
     if: endsWith(needs.build.outputs.tag, '-debug') == false
     steps:
-      - name: Download built binary
+      - name: Download deploy archive
         uses: actions/download-artifact@v4
         with:
-          name: lazyblog-binary
+          name: lazyblog-deploy
 
       - name: Prepare SSH for prod server
         run: |
@@ -104,12 +113,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.PROD_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Create deploy archive (prod)
-        run: |
-          FILES="lazyblog"
-          if [ -d static ]; then FILES="$FILES static"; fi
-          if [ -d templates ]; then FILES="$FILES templates"; fi
-          tar -czf deploy.tar.gz $FILES || true
+      # deploy archive is produced by the build job and downloaded above
 
       - name: Upload deploy archive to prod host
         run: |
