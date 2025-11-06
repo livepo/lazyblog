@@ -273,7 +273,7 @@ func uploadToImgurl(imageData []byte, filename string, hostConfig config.ImageHo
 			ImageWidth   int    `json:"image_width"`
 			ImageHeight  int    `json:"image_height"`
 			ClientName   string `json:"client_name"`
-			ID           int    `json:"id"`
+			ID           string `json:"id"`
 			Imgid        string `json:"imgid"`
 			Delete       string `json:"delete"`
 		} `json:"data"`
