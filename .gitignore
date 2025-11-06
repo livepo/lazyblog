@@ -2,3 +2,5 @@
 .ssh
 .idea
 .DS_Store
+scripts/pub.sh
+lazyblog

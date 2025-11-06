@@ -173,37 +173,38 @@ func AdminUploadImage(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	imageURL, err := uploadToImageHosting(buf.Bytes(), fileHeader.Filename)
+	result, err := uploadToImageHosting(buf.Bytes(), fileHeader.Filename)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, gin.H{
 		"message":  "image uploaded successfully",
-		"imageUrl": imageURL,
+		"imageUrl": result,
 	})
 
 }
 
-func uploadToImageHosting(imageData []byte, filename string) (string, error) {
+func uploadToImageHosting(imageData []byte, filename string) (map[string]string, error) {
 	for _, hostConfig := range config.Cfg.ImageHostings {
 		if hostConfig.Enable {
 			switch hostConfig.Provider {
 			case "imgurl":
 				return uploadToImgurl(imageData, filename, hostConfig)
 			default:
-				return "", fmt.Errorf("unsupported image hosting provider: %s", hostConfig.Provider)
+				return nil, fmt.Errorf("unsupported image hosting provider: %s", hostConfig.Provider)
 			}
 		}
 	}
-	return "", fmt.Errorf("no image hosting provider enabled")
+	return nil, fmt.Errorf("no image hosting provider enabled")
 }
 
 // uploadToImgurl uploads image to ImgURL (https://www.imgurl.org) and returns the image URL.
-func uploadToImgurl(imageData []byte, filename string, hostConfig config.ImageHostingConfig) (string, error) {
+func uploadToImgurl(imageData []byte, filename string, hostConfig config.ImageHostingConfig) (map[string]string, error) {
+	result := make(map[string]string)
 	// Basic validation
 	if hostConfig.ClientId == "" || hostConfig.ClientSecret == "" {
-		return "", fmt.Errorf("imgurl clientId or clientSecret not configured")
+		return result, fmt.Errorf("imgurl clientId or clientSecret not configured")
 	}
 
 	// ImgURL upload endpoint (as in comment)
@@ -216,49 +217,49 @@ func uploadToImgurl(imageData []byte, filename string, hostConfig config.ImageHo
 	// file field
 	fw, err := writer.CreateFormFile("file", filename)
 	if err != nil {
-		return "", fmt.Errorf("create form file error: %w", err)
+		return result, fmt.Errorf("create form file error: %w", err)
 	}
 	if _, err := fw.Write(imageData); err != nil {
-		return "", fmt.Errorf("write file to form error: %w", err)
+		return result, fmt.Errorf("write file to form error: %w", err)
 	}
 
 	// required fields: uid, token
 	if err := writer.WriteField("uid", hostConfig.ClientId); err != nil {
-		return "", fmt.Errorf("write field uid error: %w", err)
+		return result, fmt.Errorf("write field uid error: %w", err)
 	}
 	if err := writer.WriteField("token", hostConfig.ClientSecret); err != nil {
-		return "", fmt.Errorf("write field token error: %w", err)
+		return result, fmt.Errorf("write field token error: %w", err)
 	}
 	if hostConfig.AlbumId != "" {
 		if err := writer.WriteField("album_id", hostConfig.AlbumId); err != nil {
-			return "", fmt.Errorf("write field album_id error: %w", err)
+			return result, fmt.Errorf("write field album_id error: %w", err)
 		}
 	}
 
 	if err := writer.Close(); err != nil {
-		return "", fmt.Errorf("close writer error: %w", err)
+		return result, fmt.Errorf("close writer error: %w", err)
 	}
 
 	req, err := http.NewRequest("POST", endpoint, &body)
 	if err != nil {
-		return "", fmt.Errorf("create request error: %w", err)
+		return result, fmt.Errorf("create request error: %w", err)
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("upload request error: %w", err)
+		return result, fmt.Errorf("upload request error: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("read response error: %w", err)
+		return result, fmt.Errorf("read response error: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("imgurl upload failed: status=%d body=%s", resp.StatusCode, string(respBytes))
+		return result, fmt.Errorf("imgurl upload failed: status=%d body=%s", resp.StatusCode, string(respBytes))
 	}
 
 	// parse JSON response
@@ -269,19 +270,27 @@ func uploadToImgurl(imageData []byte, filename string, hostConfig config.ImageHo
 			RelativePath string `json:"relative_path"`
 			URL          string `json:"url"`
 			ThumbnailURL string `json:"thumbnail_url"`
+			ImageWidth   int    `json:"image_width"`
+			ImageHeight  int    `json:"image_height"`
+			ClientName   string `json:"client_name"`
+			ID           int    `json:"id"`
+			Imgid        string `json:"imgid"`
+			Delete       string `json:"delete"`
 		} `json:"data"`
 	}
+
+	log.Printf("ImgURL response: %s", string(respBytes))
 	if err := json.Unmarshal(respBytes, &res); err != nil {
-		return "", fmt.Errorf("parse response error: %w", err)
+		return result, fmt.Errorf("parse response error: %w", err)
 	}
 	if res.Code != 200 {
-		return "", fmt.Errorf("imgurl error: code=%d msg=%s", res.Code, res.Msg)
+		return result, fmt.Errorf("imgurl error: code=%d msg=%s", res.Code, res.Msg)
 	}
-	if res.Data.URL != "" {
-		return res.Data.URL, nil
-	}
-	if res.Data.RelativePath != "" {
-		return res.Data.RelativePath, nil
-	}
-	return "", fmt.Errorf("imgurl response missing url")
+	result["relative_path"] = res.Data.RelativePath
+	result["url"] = res.Data.URL
+	result["thumbnail_url"] = res.Data.ThumbnailURL
+	result["html"] = fmt.Sprintf("<img src='%s' />", res.Data.URL)
+	result["markdown"] = fmt.Sprintf("![](%s)", res.Data.URL)
+
+	return result, nil
 }
