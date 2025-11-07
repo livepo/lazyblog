@@ -6,6 +6,8 @@ import (
 	"lazyblog/internal/model"
 	"lazyblog/pkg/invoker"
 	"strings"
+	"text/template"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -16,7 +18,7 @@ func AtomFeed(c *gin.Context) {
 	invoker.DB.Model(model.Post{}).Order("pub_date desc").Find(&posts)
 	// Build data and render template directly so we can set correct Content-Type
 	// Create a template with minimal helpers used by atom.tmpl
-	tpl, err := htmltmpl.New("atom.tmpl").Funcs(htmltmpl.FuncMap{
+	tpl, err := template.New("atom.tmpl").Funcs(template.FuncMap{
 		"getFromConfig": func(k string) string { return viper.GetString(k) },
 		"split":         strings.Split,
 	}).ParseFiles("templates/pages/atom.tmpl")
@@ -29,7 +31,7 @@ func AtomFeed(c *gin.Context) {
 	type postForTpl struct {
 		Title       string
 		SID         int
-		PubDate     model.Post
+		PubDate     time.Time
 		Description string
 		Content     htmltmpl.HTML
 		Tags        string
@@ -40,7 +42,7 @@ func AtomFeed(c *gin.Context) {
 		feedPosts = append(feedPosts, postForTpl{
 			Title:       p.Title,
 			SID:         p.SID,
-			PubDate:     p,
+			PubDate:     p.PubDate,
 			Description: p.Description,
 			Content:     htmltmpl.HTML(p.Content),
 			Tags:        p.Tags,
