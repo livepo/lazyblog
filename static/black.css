@@ -247,9 +247,8 @@ article h2 a:hover {
 }
 
 p > img {
-  float: left;
   margin: 0 12px 12px 0;
-  width: 220px;
+  max-width: 760px;
   height: auto;
   border-radius: 6px;
 }
