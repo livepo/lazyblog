@@ -36,7 +36,7 @@ h6 {
   font-family: var(--heading-font);
 }
 p {
-  color: var(--muted-color);
+  color: var(--text-color);
 
   /* 两端对齐 */
   text-align: justify;
