@@ -251,6 +251,8 @@ p > img {
   max-width: 760px;
   height: auto;
   border-radius: 6px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* 表单、输入元素统一样式 */
