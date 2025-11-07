@@ -38,23 +38,23 @@ h6 {
 p {
   color: var(--text-color);
 
-  /* 两端对齐 */
-  text-align: justify;
+  // /* 两端对齐 */
+  // text-align: justify;
 
-  /* 中文建议按字符分配间距；英文按单词分配作为回退 */
-  text-justify: inter-character;
-  /* 兼容性回退 */
-  -webkit-text-justify: inter-character;
-  -ms-text-justify: inter-character;
+  // /* 中文建议按字符分配间距；英文按单词分配作为回退 */
+  // text-justify: inter-character;
+  // /* 兼容性回退 */
+  // -webkit-text-justify: inter-character;
+  // -ms-text-justify: inter-character;
 
-  /* 控制最后一行是否也两端对齐（按需启用） */
-  text-align-last: justify;
-  -webkit-text-align-last: justify;
+  // /* 控制最后一行是否也两端对齐（按需启用） */
+  // text-align-last: justify;
+  // -webkit-text-align-last: justify;
 
-  /* 启用单词/字符自动连字符以减少空隙（英文/长词） */
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  -ms-hyphens: auto;
+  // /* 启用单词/字符自动连字符以减少空隙（英文/长词） */
+  // hyphens: auto;
+  // -webkit-hyphens: auto;
+  // -ms-hyphens: auto;
 }
 
 .main {
