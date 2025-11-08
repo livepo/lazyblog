@@ -57,6 +57,12 @@ p {
   -ms-hyphens: auto;
 }
 
+pre code {
+  white-space: pre-wrap; /* 保留换行符并允许自动换行 */
+  word-wrap: break-word; /* 对长单词进行换行（旧规范） */
+  overflow-wrap: break-word; /* 对长单词进行换行（新规范） */
+}
+
 .main {
   display: flex;
   min-height: 100vh;
