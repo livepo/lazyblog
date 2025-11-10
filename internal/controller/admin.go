@@ -24,6 +24,7 @@ import (
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
+	"go.abhg.dev/goldmark/mermaid"
 	"gopkg.in/yaml.v3"
 )
 
@@ -123,6 +124,7 @@ func parse(content string, filename string) (*blog, error) {
 					chromahtml.WithLineNumbers(true),
 				),
 			),
+			&mermaid.Extender{RenderMode: mermaid.RenderModeClient},
 		),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),

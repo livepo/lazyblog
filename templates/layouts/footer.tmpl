@@ -24,6 +24,16 @@
       }
     });
   </script>
+
+  <!-- Mermaid JS -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false,theme: "dark" });
+  
+    document.querySelectorAll('.mermaid:not([data-processed])').forEach((el) => {
+      mermaid.init(undefined, el);
+    });
+  </script>
 </body>
 </html>
 {{ end }}
