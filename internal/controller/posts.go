@@ -8,6 +8,12 @@ import (
 	"net/http"
 	"time"
 
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"github.com/yuin/goldmark"
@@ -114,7 +120,25 @@ func CreatePost(c *gin.Context) {
 	req.Published = true
 	req.PubDate = time.Now()
 	var buf bytes.Buffer
-	if err := goldmark.Convert([]byte(req.Content), &buf); err != nil {
+	markdown := goldmark.New(
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("monokai"),
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+				),
+			),
+		),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithXHTML(),
+		),
+	)
+	if err := markdown.Convert([]byte(req.Content), &buf); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to convert content"})
 		return
 	}

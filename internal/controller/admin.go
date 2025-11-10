@@ -17,8 +17,13 @@ import (
 	"strings"
 	"time"
 
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/gin-gonic/gin"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/renderer/html"
 	"gopkg.in/yaml.v3"
 )
 
@@ -108,6 +113,26 @@ func parse(content string, filename string) (*blog, error) {
 	blog.Markdown = bodyPart
 
 	var post model.Post
+
+	markdown := goldmark.New(
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("monokai"),
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+				),
+			),
+		),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithXHTML(),
+		),
+	)
+
 	if err := invoker.DB.Model(&model.Post{}).Where("file = ?", filename).First(&post).Error; err == nil {
 		fmt.Println("Post already exists, updating...")
 		post.Title = blog.Title
@@ -119,7 +144,7 @@ func parse(content string, filename string) (*blog, error) {
 		post.Category = blog.Category
 		post.Markdown = bodyPart
 		var buf bytes.Buffer
-		if err := goldmark.Convert([]byte(bodyPart), &buf); err != nil {
+		if err := markdown.Convert([]byte(bodyPart), &buf); err != nil {
 			return nil, fmt.Errorf("markdown conversion error: %w", err)
 		}
 		post.Content = buf.String()
@@ -137,7 +162,7 @@ func parse(content string, filename string) (*blog, error) {
 		post.Markdown = bodyPart
 		post.File = filename
 		var buf bytes.Buffer
-		if err := goldmark.Convert([]byte(bodyPart), &buf); err != nil {
+		if err := markdown.Convert([]byte(bodyPart), &buf); err != nil {
 			return nil, fmt.Errorf("markdown conversion error: %w", err)
 		}
 		post.Content = buf.String()

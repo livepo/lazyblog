@@ -22,6 +22,7 @@ type SiteConfig struct {
 	Prefix string `mapstructure:"prefix"`
 	Title  string `mapstructure:"title"`
 	About  string `mapstructure:"about"`
+	Domain string `mapstructure:"domain"`
 }
 
 type Auth struct {
