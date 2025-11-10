@@ -97,6 +97,11 @@ pre code {
   margin-left: 20px;
 }
 
+.logo a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
 /* 顶部固定导航栏（覆盖全宽） */
 .nav {
   display: flex;
@@ -288,13 +293,6 @@ p > img {
   flex-wrap: wrap;
 }
 
-/* 窄屏下回退到单列以保证可读性 */
-/*@media (max-width: 640px) {
-  .form > * {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-}*/
 .form-group {
   display: flex;
   align-items: center;
@@ -322,6 +320,18 @@ p > img {
   flex: 1 1 100%; /* flex-grow:1, flex-shrink:1, flex-basis:100% */
   box-sizing: border-box;
   margin-right: 24px;
+}
+
+/* 窄屏下回退到单列以保证可读性 */
+@media (max-width: 640px) {
+  .form-group {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .hidden-xs {
+    display: none;
+  }
 }
 
 /* 小细节 */
