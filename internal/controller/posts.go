@@ -38,7 +38,7 @@ func ListPosts(c *gin.Context) {
 	if size <= 0 {
 		size = 10
 	}
-	tag := c.Query("tag")
+	tag := c.Query("tags")
 	category := c.Query("category")
 
 	posts := make([]model.Post, 0)
