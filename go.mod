@@ -1,6 +1,6 @@
 module lazyblog
 
-go 1.24
+go 1.24.0
 
 toolchain go1.24.10
 
@@ -54,7 +54,9 @@ require (
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
 )
+
+replace go.abhg.dev/goldmark/mermaid => github.com/livepo/goldmark-mermaid v0.0.0-20251111073910-f5c11cc44ba9

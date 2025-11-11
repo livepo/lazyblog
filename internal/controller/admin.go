@@ -125,7 +125,7 @@ func parse(content string, filename string) (*blog, error) {
 					chromahtml.WithLineNumbers(true),
 				),
 			),
-			&mermaid.Extender{Theme: "dark"},
+			&mermaid.Extender{RenderMode: mermaid.RenderModeClient, Theme: "dark"},
 		),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
