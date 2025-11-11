@@ -71,6 +71,7 @@ func AdminCreatePost(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("Saved backup of uploaded file to %s", backupPath)
 	blog, err := parse(buf.String(), filename)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
