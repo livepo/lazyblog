@@ -39,6 +39,15 @@ type Comment struct {
 	PubDate    time.Time `gorm:"type:datetime" json:"pub_date"`
 }
 
+type FrendLink struct {
+	gorm.Model
+	ID      int    `gorm:"primaryKey;autoIncrement"`
+	Name    string `gorm:"type:varchar(100);not null"`
+	URL     string `gorm:"type:varchar(255);not null"`
+	Email   string `gorm:"type:varchar(100)"`
+	Enabled bool   `gorm:"default:true"`
+}
+
 func GenerateSID() int {
 	// This function should generate a unique SID for each post/comment/like.
 	return int(time.Now().Unix()-time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC).Unix())*100 + rand.Intn(100)

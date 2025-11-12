@@ -322,3 +322,36 @@ func uploadToImgurl(imageData []byte, filename string, hostConfig config.ImageHo
 
 	return result, nil
 }
+
+type link struct {
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Email string `json:"email"`
+}
+
+func AdminCreateLink(c *gin.Context) {
+	token := c.GetHeader("X-Admin-Token")
+
+	if token != config.Cfg.Auth.XAdminToken {
+		c.JSON(401, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	var req link
+	if err := c.Bind(&req); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	link := model.FrendLink{
+		Name:  req.Name,
+		URL:   req.URL,
+		Email: req.Email,
+	}
+	invoker.DB.Create(&link)
+
+	c.JSON(200, gin.H{
+		"message": "friend link created successfully",
+		"name":    req.Name,
+	})
+}

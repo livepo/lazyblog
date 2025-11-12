@@ -1,7 +1,7 @@
  {{ template "header.tmpl" }}
  <title>{{ .Post.Title }}</title>
  <script>
- function relativeTimeSimple(t) {
+ function relativeTime(t) {
     const now = new Date();
     const duration = now - t; // 毫秒数
 
@@ -74,7 +74,7 @@ function fetchComments() {
         
         // 转换发布时间为相对时间
         const pubDate = new Date(item.pub_date);
-        const relativeTime = relativeTimeSimple(pubDate);
+        const relativeTime = relativeTime(pubDate);
         
         html += `<div class="comment-item">
           <p><strong>${nicknameHtml}:</strong> ${item.content} <span class="meta-verbose">${relativeTime}</span></p>
@@ -91,7 +91,7 @@ function fetchComments() {
 }
 </script>
  {{ template "middle.tmpl" }}
-  <div class="right-card">
+  <div class="content-card">
     <article>
       <h2>{{ .Post.Title }}</h2>
       <ul class="post-meta">
@@ -109,7 +109,7 @@ function fetchComments() {
     </article>
   </div>
 
-  <div class="right-card comment">
+  <div class="content-card comment">
   <form class="form" action="{{ getFromConfig "site.prefix" }}/posts/{{ .Post.SID }}/comment" method="post" onsubmit="submitCommentForm(event)">
       <div class="form-group">
         <label for="nickname">昵称:</label>
@@ -130,7 +130,7 @@ function fetchComments() {
     </form>
   </div>
 
-  <div class="right-card comment">
+  <div class="content-card comment">
     <div class="comment-list" id="comment-list">
       <h4>评论列表:</h4>
       <div class="comment-item">
@@ -143,7 +143,7 @@ function fetchComments() {
                   {{ else }}
                     {{ .Nickname }}:
                   {{ end }}
-                  </strong> {{ .Content }} <span class="meta-verbose">{{ relativeTimeSimple .PubDate }}</span>
+                  </strong> {{ .Content }} <span class="meta-verbose">{{ relativeTime .PubDate }}</span>
                 </p>
             </div>
         {{ else }}

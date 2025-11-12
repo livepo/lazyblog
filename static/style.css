@@ -55,18 +55,18 @@ p {
   margin-left: 400px; /* 避免被left遮挡 */
 }
 
-.right-card {
+.content-card {
   background-color: #fff;
   padding: 15px;
   border: 1px solid var(--border-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.right-card:hover {
+.content-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.right-card.height-viewport {
+.content-card.height-viewport {
   height: 95%;
 }
 
@@ -96,7 +96,7 @@ p {
   gap: 10px;
 }
 
-.right-card.height-viewport {
+.content-card.height-viewport {
   min-height: 90vh;
 }
 

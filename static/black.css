@@ -66,17 +66,16 @@ pre code {
 .main {
   display: flex;
   min-height: 100vh;
-  max-width: 800px;
   margin: 0 auto;
   flex-direction: column;
+  align-items: center;
 }
 
-.left {
+.header-container {
   height: 60px;
-  width: 100%; /* 占满父元素当前可用宽度 */
-  max-width: inherit;
-  display: flex;
+  width: 100%;
   align-items: center;
+  display: flex;
   justify-content: center;
   gap: 20px;
   background: linear-gradient(
@@ -124,21 +123,20 @@ pre code {
 }
 
 /* 右侧主区域，留出侧边和顶部导航间距 */
-.right {
+.content-container {
   margin-top: 72px;
   background: transparent;
-  max-width: inherit;
-  width: 100%;
+  width: 800px;
 }
 
-.right-card {
+.content-container-card {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
   padding: 20px;
 }
-.right-card:hover {
+.content-container-card:hover {
   box-shadow: 0 14px 60px rgba(0, 0, 0, 0.7);
 }
 
@@ -165,6 +163,7 @@ pre code {
 .social-links {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 15px;
   margin-right: 20px;
 }
@@ -172,6 +171,8 @@ pre code {
 .social-links a {
   color: var(--muted-color);
   text-decoration: none;
+  display: flex;
+  align-items: center;
 }
 .social-links a:hover {
   color: var(--accent);
@@ -341,10 +342,10 @@ p > img {
 }
 
 /* 小细节 */
-.right-card a {
+.content-container-card a {
   color: var(--accent);
 }
-.right-card a:hover {
+.content-container-card a:hover {
   color: var(--accent-2);
 }
 

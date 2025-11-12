@@ -1,8 +1,8 @@
  {{ template "header.tmpl" }}
  <title>{{ .Title }}</title>
  {{ template "middle.tmpl" }}
- <div class="right-card height-viewport">
+ <div class="content-card height-viewport">
   <h2>{{ .Title }}</h2>
-  {{ .Content | safeHTML }}
+  {{ about }}
 </div>
  {{ template "footer.tmpl" }}

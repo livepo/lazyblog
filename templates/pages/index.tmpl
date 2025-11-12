@@ -1,7 +1,7 @@
  {{ template "header.tmpl" }}
  <title>{{ .Title }}</title>
  {{ template "middle.tmpl" }}
-  <div class="right-card height-viewport">
+  <div class="content-card height-viewport">
     {{ if gt (len .Posts) 0 }}
       {{ $post := index .Posts 0 }}
   <h2>最新文章：<a href="{{ getFromConfig "site.prefix" }}/posts/{{ $post.SID }}">{{ $post.Title }}</a></h2>
@@ -42,7 +42,7 @@
                   {{ else }}
                     {{ .Nickname }}:
                   {{ end }}
-                  </strong> <a href="{{ getFromConfig "site.prefix" }}/posts/{{ .PostSID }}#c-{{ .SID }}">{{ truncate .Content 120 }}</a> <span class="meta-verbose">{{ relativeTimeSimple .PubDate }}</span>
+                  </strong> <a href="{{ getFromConfig "site.prefix" }}/posts/{{ .PostSID }}#c-{{ .SID }}">{{ truncate .Content 120 }}</a> <span class="meta-verbose">{{ relativeTime .PubDate }}</span>
                 </p>
             </div>
         {{ else }}
