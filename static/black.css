@@ -178,6 +178,19 @@ pre code {
   color: var(--accent);
 }
 
+.social-links img.icon {
+  filter: invert(80%) sepia(20%) saturate(200%) hue-rotate(180deg)
+    brightness(90%) contrast(85%);
+  transition: filter 0.3s ease;
+  height: 24px;
+  width: auto;
+}
+
+.social-links a:hover img.icon {
+  filter: invert(60%) sepia(70%) saturate(400%) hue-rotate(30deg)
+    brightness(110%) contrast(120%);
+}
+
 .article-container {
   color: var(--text-color);
   padding: 20px;
@@ -360,6 +373,11 @@ p > img {
   text-align: center;
   color: var(--muted-color);
   font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
 div > pre {

@@ -23,7 +23,7 @@ func main() {
 	viper.BindPFlags(pflag.CommandLine)
 	if viper.GetBool("initdb") {
 		fmt.Println("initdb...")
-		invoker.DB.AutoMigrate(model.Post{}, model.Comment{})
+		invoker.DB.AutoMigrate(model.Post{}, model.Comment{}, model.FrendLink{})
 		return
 	}
 
