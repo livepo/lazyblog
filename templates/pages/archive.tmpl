@@ -1,17 +1,19 @@
  {{ template "header.tmpl" }}
  <title>{{ .Title }}</title>
  {{ template "middle.tmpl" }}
-  <div class="content-card height-viewport">
-  <h2>{{ .Title }}</h2>
-  {{ range .Data }}
-    <h3>{{ .Year }} 年 {{ .Month }} 月</h3>
-    {{ range .Posts }}
-  <h4><a href="{{ getFromConfig "site.prefix" }}/posts/{{ .SID }}">{{ .Title }}</a> <span class="meta-verbose">({{ .PubDate.Format "2006-01-02" }})</span></h4>
+  <div class="post-list-container height-viewport">
+    <div class="content-card height-viewport">
+    <h2>{{ .Title }}</h2>
+    {{ range .Data }}
+      <h3>{{ .Year }} 年 {{ .Month }} 月</h3>
+      {{ range .Posts }}
+    <h4><a href="{{ getFromConfig "site.prefix" }}/posts/{{ .SID }}">{{ .Title }}</a> <span class="meta-verbose">({{ .PubDate.Format "2006-01-02" }})</span></h4>
+      {{ else }}
+        <h4>暂无文章</h4>
+      {{ end }}
     {{ else }}
-      <h4>暂无文章</h4>
+      <h4>暂无归档</h4>
     {{ end }}
-  {{ else }}
-    <h4>暂无归档</h4>
-  {{ end }}
+    </div>
   </div>
  {{ template "footer.tmpl" }}

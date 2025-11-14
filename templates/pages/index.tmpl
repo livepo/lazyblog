@@ -1,13 +1,13 @@
  {{ template "header.tmpl" }}
  <title>{{ .Title }}</title>
  {{ template "middle.tmpl" }}
-  <div class="content-card height-viewport">
+  <div class="content-card height-viewport left">
     {{ if gt (len .Posts) 0 }}
       {{ $post := index .Posts 0 }}
-  <h2>最新文章：<a href="{{ getFromConfig "site.prefix" }}/posts/{{ $post.SID }}">{{ $post.Title }}</a></h2>
+      <h2>最新文章：<a href="{{ getFromConfig "site.prefix" }}/posts/{{ $post.SID }}">{{ $post.Title }}</a></h2>
       <ul class="post-meta">
         <li>📅 发表于{{ $post.PubDate.Format "2006-01-02" }}</li>
-  <li>📁 <a href="{{ getFromConfig "site.prefix" }}/posts?category={{ $post.Category }}">{{ $post.Category }}</a></li>
+        <li>📁 <a href="{{ getFromConfig "site.prefix" }}/posts?category={{ $post.Category }}">{{ $post.Category }}</a></li>
         <li>🏷️
           {{ $tags := split $post.Tags "," }}
           {{ range $idx, $tag := $tags }}
@@ -28,7 +28,7 @@
     {{ else }}
       <h4>暂无文章</h4>
     {{ end }}
-  <a class="more-post" href="{{ getFromConfig "site.prefix" }}/posts">查看所有文章...</a>
+    <a class="more-post" href="{{ getFromConfig "site.prefix" }}/posts">查看所有文章...</a>
     <hr />
     <div class="comment-list" id="comment-list">
       <h3>最新评论</h3>
@@ -49,6 +49,33 @@
             <p>暂无评论 😭</p>
         {{ end }}
       </div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="content-card">
+      <div class="about-me-content">
+        {{ about }}
+      </div>
+    </div>
+    <div class="content-card">
+      <h3>文章分类</h3>
+      <ul class="category-list">
+        {{ range $cat := getCategories }}
+          <li><a href="{{ getFromConfig "site.prefix" }}/posts?category={{ $cat.Name }}">{{ $cat.Name }} ({{ $cat.PostCount }})</a></li>
+        {{ else }}
+          <li>暂无分类</li>
+        {{ end }}
+      </ul>
+    </div>
+    <div class="content-card">
+      <h3>标签列表</h3>
+      <ul class="tags-list">
+        {{ range $tag := getTags }}
+          <li><a href="{{ getFromConfig "site.prefix" }}/posts?tags={{ $tag.Name }}">{{ $tag.Name }} ({{ $tag.PostCount }})</a></li>
+        {{ else }}
+          <li>暂无标签</li>
+        {{ end }}
+      </ul>
     </div>
   </div>
  {{ template "footer.tmpl" }}

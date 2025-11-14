@@ -90,13 +90,14 @@ function fetchComments() {
 // window.addEventListener('DOMContentLoaded', fetchComments);
 }
 </script>
- {{ template "middle.tmpl" }}
+{{ template "middle.tmpl" }}
+<div class="post-list-container height-viewport">
   <div class="content-card">
     <article>
       <h2>{{ .Post.Title }}</h2>
       <ul class="post-meta">
         <li>📅 发表于{{ .Post.PubDate.Format "2006-01-02" }}</li>
-  <li>📁 <a href="{{ getFromConfig "site.prefix" }}/posts?category={{ .Post.Category }}">{{ .Post.Category }}</a></li>
+        <li>📁 <a href="{{ getFromConfig "site.prefix" }}/posts?category={{ .Post.Category }}">{{ .Post.Category }}</a></li>
         <li>🏷️
           {{ $tags := split .Post.Tags "," }}
           {{ range $idx, $tag := $tags }}
@@ -110,7 +111,7 @@ function fetchComments() {
   </div>
 
   <div class="content-card comment">
-  <form class="form" action="{{ getFromConfig "site.prefix" }}/posts/{{ .Post.SID }}/comment" method="post" onsubmit="submitCommentForm(event)">
+    <form class="form" action="{{ getFromConfig "site.prefix" }}/posts/{{ .Post.SID }}/comment" method="post" onsubmit="submitCommentForm(event)">
       <div class="form-group">
         <label for="nickname">昵称:</label>
         <input type="text" id="nickname" name="nickname" required placeholder="请输入昵称"/>
@@ -152,4 +153,5 @@ function fetchComments() {
       </div>
     </div>
   </div>
-   {{ template "footer.tmpl" }}
+</div>
+ {{ template "footer.tmpl" }}

@@ -39,6 +39,9 @@ func main() {
 		"getFromConfig": func(k string) string { return viper.GetString(k) },
 		"markdown":      view.Md2Html,
 		"about":         view.AboutMe,
+		"getLinks":      view.GetLinks,
+		"getCategories": view.GetCategories,
+		"getTags":       view.GetTags,
 	})
 
 	router.Use(gin.Logger())

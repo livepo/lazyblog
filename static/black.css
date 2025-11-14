@@ -66,7 +66,6 @@ pre code {
 .main {
   display: flex;
   min-height: 100vh;
-  margin: 0 auto;
   flex-direction: column;
   align-items: center;
 }
@@ -101,6 +100,11 @@ pre code {
   text-decoration: none;
 }
 
+.logo a:hover {
+  color: var(--accent);
+  background: rgba(197, 157, 95, 0.06);
+}
+
 /* 顶部固定导航栏（覆盖全宽） */
 .nav {
   display: flex;
@@ -126,17 +130,68 @@ pre code {
 .content-container {
   margin-top: 72px;
   background: transparent;
-  width: 800px;
+  width: 1200px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
-.content-container-card {
+.left {
+  flex: 0 0 61.8%;
+  max-width: 61.8%;
+  box-sizing: border-box; /* 包括padding和border在内计算宽度 */
+}
+
+.right {
+  flex: 1 1 0;
+  min-width: 0; /* 防止内容撑开导致溢出 */
+  box-sizing: border-box;
+  position: sticky;
+  top: 72px;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-list li a {
+  margin-bottom: 10px;
+  text-decoration: none;
+}
+
+.tags-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tags-list li a {
+  text-decoration: none;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.post-list-container {
+  width: 800px;
+  margin: 0 auto;
+}
+
+.content-card {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
   padding: 20px;
 }
-.content-container-card:hover {
+.content-card:hover {
   box-shadow: 0 14px 60px rgba(0, 0, 0, 0.7);
 }
 
@@ -342,23 +397,11 @@ p > img {
   margin-right: 24px;
 }
 
-/* 窄屏下回退到单列以保证可读性 */
-@media (max-width: 640px) {
-  .form-group {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-
-  .hidden-xs {
-    display: none;
-  }
-}
-
 /* 小细节 */
-.content-container-card a {
+.content-card a {
   color: var(--accent);
 }
-.content-container-card a:hover {
+.content-card a:hover {
   color: var(--accent-2);
 }
 
@@ -382,4 +425,33 @@ p > img {
 
 div > pre {
   padding: 10px;
+}
+
+/* 窄屏下回退到单列以保证可读性 */
+@media (max-width: 640px) {
+  .form-group {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .hidden-xs {
+    display: none;
+  }
+
+  .content-container {
+    width: 600px;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+    margin-left: 10px;
+  }
+  .social-links {
+    margin-right: 10px;
+  }
+
+  .social-links img.icon {
+    height: 20px;
+    width: auto;
+  }
 }
