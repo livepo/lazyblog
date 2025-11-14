@@ -27,6 +27,8 @@ func main() {
 		return
 	}
 
+	etag := view.CssEtag()
+
 	router := gin.Default()
 	router.SetFuncMap(template.FuncMap{
 		"formatAsDate":  view.FormatAsDate,
@@ -42,6 +44,7 @@ func main() {
 		"getLinks":      view.GetLinks,
 		"getCategories": view.GetCategories,
 		"getTags":       view.GetTags,
+		"cssEtag":       func() string { return etag },
 	})
 
 	router.Use(gin.Logger())

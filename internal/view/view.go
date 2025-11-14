@@ -2,10 +2,13 @@ package view
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"lazyblog/internal/model"
 	"lazyblog/pkg/invoker"
+	"os"
 	"sort"
 	"time"
 
@@ -160,4 +163,15 @@ func Md2Html(md string) template.HTML {
 
 func AboutMe() template.HTML {
 	return Md2Html(viper.GetString("site.about"))
+}
+
+func CssEtag() string {
+	path := "static/" + viper.GetString("site.css")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	sum := md5.Sum(data)
+	v := hex.EncodeToString(sum[:6])
+	return v
 }
