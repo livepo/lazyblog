@@ -353,6 +353,7 @@ article h2 a:hover {
 p > img {
   margin: 0 12px 12px 0;
   max-width: 760px;
+  width: 100%;
   height: auto;
   border-radius: 6px;
   border: 1px solid var(--border-color);
