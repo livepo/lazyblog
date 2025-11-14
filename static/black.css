@@ -438,10 +438,6 @@ div > pre {
     display: none;
   }
 
-  .content-container {
-    width: 600px;
-  }
-
   .logo {
     font-size: 1.2rem;
     margin-left: 10px;
@@ -453,5 +449,26 @@ div > pre {
   .social-links img.icon {
     height: 20px;
     width: auto;
+  }
+
+  /* 在窄屏下让左右两栏垂直堆叠并各自撑满父容器宽度 */
+  .content-container {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .left,
+  .right {
+    flex: 1 1 100%;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 如果不需要右侧在小屏保持粘性，可改为 static（可选） */
+  .right {
+    position: static;
+    top: auto;
   }
 }
