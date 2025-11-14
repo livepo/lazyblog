@@ -180,7 +180,7 @@ pre code {
 }
 
 .post-list-container {
-  width: 800px;
+  width: inherit;
   margin: 0 auto;
 }
 
