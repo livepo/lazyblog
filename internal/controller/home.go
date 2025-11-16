@@ -18,6 +18,6 @@ func Home(c *gin.Context) {
 	var posts []model.Post
 	invoker.DB.Model(model.Post{}).Where("published = ?", true).Order("pub_date desc").Limit(10).Find(&posts)
 	var comments []model.Comment
-	invoker.DB.Model(model.Comment{}).Where("approved = ?", true).Order("pub_date desc").Limit(5).Find(&comments)
+	invoker.DB.Model(model.Comment{}).Where("approved = ?", true).Order("pub_date desc").Limit(10).Find(&comments)
 	c.HTML(http.StatusOK, "index.tmpl", HomeData{Title: "首页", Posts: posts, Comments: comments})
 }
